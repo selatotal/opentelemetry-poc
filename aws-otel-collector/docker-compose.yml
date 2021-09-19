@@ -1,0 +1,19 @@
+version: '2'
+
+services:
+  aws-otel-collector:
+    image: public.ecr.aws/aws-observability/aws-otel-collector:latest
+    command: ["--config=/etc/otel-agent-config.yaml", "--log-level=DEBUG"]
+    environment:
+      - AWS_ACCESS_KEY_ID=ACCESS_KEY
+      - AWS_SECRET_ACCESS_KEY=SECRET_ACCESS_KEY/qQm9h20
+      - AWS_REGION=us-east-1
+    ports:
+      - "55679:55679" # zpages extension
+      - "4317:4317" # OTLP receiver HRPC
+      - "55680:55680" # OTLP receiver HRPC
+      - "55681:55681" # OTLP receiver HTTP
+      - "13133" # health_check
+    volumes:
+      - ./config.yaml:/etc/otel-agent-config.yaml
+      - ~/.aws:/root/.aws

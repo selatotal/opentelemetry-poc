@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: appsample
+  labels:
+    app: appsample
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: appsample
+  template:
+    metadata:
+      labels:
+        app: appsample
+    spec:
+      containers:
+        - name: appsample
+          image: docker.io/selat/appsample:1.2-SNAPSHOT
+          ports:
+            - containerPort: 8080
+          env:
+            - name: OTEL_OTLP_ENDPOINT
+              value: "localhost:4317"
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: 'service.name=appsample,service.namespace=ubisafe'
+            - name: OTEL_METRICS_EXPORTER
+              value: 'none'
+            - name: AWS_ACCESS_KEY_ID
+              value: ''
+            - name: AWS_SECRET_ACCESS_KEY
+              value: ''
+            - name: DATABASE_URL
+              value: 'jdbc:mysql://host.minikube.internal:3306/central?useSSL=false'
+            - name: DATABASE_USER
+              value: 'root'
+            - name: DATABASE_PASSWORD
+              value: 'admin12345'
+            - name: AWS_IOT_CLIENT_ENDPOINT
+              value: ''
+            - name: AWS_IOT_CERTIFICATES_PATH
+              value: '/certs'
+            - name: BACKEND_URL
+              value: 'http://consumer:8080'
+        - name: aws-otel-collector
+          image: amazon/aws-otel-collector:latest
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              value: ''
+            - name: AWS_SECRET_ACCESS_KEY
+              value: ''
+            - name: AWS_REGION
+              value: 'us-east-1'
+          imagePullPolicy: Always
+          resources:
+            limits:
+              cpu: 256m
+              memory: 512Mi
+            requests:
+              cpu: 32m
+              memory: 24Mi
